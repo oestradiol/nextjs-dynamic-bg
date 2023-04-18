@@ -1,6 +1,6 @@
 import { GetServerSidePropsContext, GetServerSidePropsResult, PreviewData } from "next";
 import { ParsedUrlQuery } from "querystring";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 export type StrictGetServerSideProps<
   P,
@@ -35,25 +35,6 @@ export const useWindowDimensions = () => {
   }, []);
 
   return windowDimensions;
-};
-
-export const useWindowWidth = () => {
-  const [windowWidth, setWindowWidth] = useState<number>(0);
-
-  useEffect(() => {
-    const handleResize = () => setWindowWidth(
-      ((): WindowDimensions => {
-        const { innerWidth: windowWidth, innerHeight: windowHeight } = window;
-        return { windowWidth, windowHeight };
-      })().windowWidth
-    );
-
-    handleResize();
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-  return windowWidth;
 };
 
 // type Props = {
