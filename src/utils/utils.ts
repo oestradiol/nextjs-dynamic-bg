@@ -1,6 +1,6 @@
 import { GetServerSidePropsContext, GetServerSidePropsResult, PreviewData } from "next";
 import { ParsedUrlQuery } from "querystring";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 export type StrictGetServerSideProps<
   P,
@@ -10,20 +10,24 @@ export type StrictGetServerSideProps<
   context: GetServerSidePropsContext<Q, D>
 ) => Promise<GetServerSidePropsResult<P>>
 
-export interface WindowDimensions { windowWidth: number, windowHeight: number }
-
-const getDimensionsFromWindow = (): WindowDimensions => {
-  const { innerWidth: windowWidth, innerHeight: windowHeight } = window;
-  return { windowWidth, windowHeight };
+export interface WindowDimensions {
+  windowWidth: number;
+  windowHeight: number;
 }
 
-export const getWindowDimensions = () => {
-  const [windowDimensions, setWindowDimensions] = useState({ windowWidth: 0, windowHeight: 0 });
+export const useWindowDimensions = () => {
+  const [windowDimensions, setWindowDimensions] = useState<WindowDimensions>({
+    windowWidth: 0,
+    windowHeight: 0,
+  });
 
   useEffect(() => {
-    const handleResize = () => {
-      setWindowDimensions(getDimensionsFromWindow());
-    }
+    const handleResize = () => setWindowDimensions(
+      ((): WindowDimensions => {
+        const { innerWidth: windowWidth, innerHeight: windowHeight } = window;
+        return { windowWidth, windowHeight };
+      })()
+    );
 
     handleResize();
     window.addEventListener('resize', handleResize);
@@ -31,7 +35,26 @@ export const getWindowDimensions = () => {
   }, []);
 
   return windowDimensions;
-}
+};
+
+export const useWindowWidth = () => {
+  const [windowWidth, setWindowWidth] = useState<number>(0);
+
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(
+      ((): WindowDimensions => {
+        const { innerWidth: windowWidth, innerHeight: windowHeight } = window;
+        return { windowWidth, windowHeight };
+      })().windowWidth
+    );
+
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  return windowWidth;
+};
 
 // type Props = {
 //   // Insert props and types
