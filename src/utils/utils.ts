@@ -1,0 +1,50 @@
+import { GetServerSidePropsContext, GetServerSidePropsResult, PreviewData } from "next";
+import { ParsedUrlQuery } from "querystring";
+import { useEffect, useState } from "react";
+
+export type StrictGetServerSideProps<
+  P,
+  Q extends ParsedUrlQuery = ParsedUrlQuery,
+  D extends PreviewData = PreviewData
+> = (
+  context: GetServerSidePropsContext<Q, D>
+) => Promise<GetServerSidePropsResult<P>>
+
+export interface WindowDimensions { windowWidth: number, windowHeight: number }
+
+const getDimensionsFromWindow = (): WindowDimensions => {
+  const { innerWidth: windowWidth, innerHeight: windowHeight } = window;
+  return { windowWidth, windowHeight };
+}
+
+export const getWindowDimensions = () => {
+  const [windowDimensions, setWindowDimensions] = useState({ windowWidth: 0, windowHeight: 0 });
+
+  useEffect(() => {
+    const handleResize = () => {
+      setWindowDimensions(getDimensionsFromWindow());
+    }
+
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  return windowDimensions;
+}
+
+// type Props = {
+//   // Insert props and types
+// }
+// export const getServerSideProps: StrictGetServerSideProps<Props> =
+//   async ({ query: { viewport } }) => {
+//     return {
+//       // redirect: {
+//       //   statusCode: 308,
+//       //   destination: ''
+//       // }
+//       props: {
+//         // Define Props
+//       }
+//     }
+//   }
