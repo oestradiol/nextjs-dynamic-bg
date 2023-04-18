@@ -18,7 +18,7 @@ export class Colour {
     `rgba(${this.r}, ${this.g}, ${this.b}, ${this.a})`
 }
 
-const shapesBg = (
+const ShapesBg = (
   numOfFiguresPerUnit: number,
   avgAnimDuration: number,
   shapeSize: number = 20,
@@ -31,7 +31,7 @@ const shapesBg = (
         </ul>
   </div>
 )
-export default shapesBg;
+export default ShapesBg;
 
 class ShapesBuilder {
   unit: number = 1000; // In pixels
