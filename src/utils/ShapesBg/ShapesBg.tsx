@@ -1,4 +1,4 @@
-import shapesBgStyles from './shapesBg.module.scss'
+import styles from './ShapesBg.module.scss'
 import { useWindowDimensions, WindowDimensions } from '@/utils/utils'
 
 export class Colour {
@@ -18,15 +18,21 @@ export class Colour {
     `rgba(${this.r}, ${this.g}, ${this.b}, ${this.a})`
 }
 
-const ShapesBg = (
-  numOfFiguresPerUnit: number,
-  avgAnimDuration: number,
-  shapeSize: number = 20,
-  colour: Colour = new Colour(255, 255, 255, 1),
-): JSX.Element =>
+export interface ShapesProps {
+  numOfFiguresPerUnit?: number,
+  avgAnimDuration?: number,
+  shapeSize?: number,
+  colour?: Colour,
+}
+const ShapesBg = ({
+  numOfFiguresPerUnit = 45,
+  avgAnimDuration = 15,
+  shapeSize = 20,
+  colour = new Colour(255, 255, 255, 1),
+}: ShapesProps): JSX.Element =>
 (
-  <div className={shapesBgStyles.area}>
-        <ul className={shapesBgStyles.list}>
+  <div className={styles.area}>
+        <ul className={styles.list}>
           { new ShapesBuilder(numOfFiguresPerUnit, avgAnimDuration, shapeSize, colour, useWindowDimensions()).build() }
         </ul>
   </div>
