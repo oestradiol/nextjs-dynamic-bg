@@ -1,5 +1,5 @@
 import shapesBgStyles from './shapesBg.module.scss'
-import { getWindowDimensions, WindowDimensions } from '@/utils/utils'
+import { useWindowDimensions, WindowDimensions } from '@/utils/utils'
 
 export class Colour {
   r: number;
@@ -27,7 +27,7 @@ const shapesBg = (
 (
   <div className={shapesBgStyles.area}>
         <ul className={shapesBgStyles.list}>
-          { new ShapesBuilder(numOfFiguresPerUnit, avgAnimDuration, shapeSize, colour, getWindowDimensions()).build() }
+          { new ShapesBuilder(numOfFiguresPerUnit, avgAnimDuration, shapeSize, colour, useWindowDimensions()).build() }
         </ul>
   </div>
 )
