@@ -74,7 +74,7 @@ const ShapesBg = ({
 
   return (
     <div className={styles.area}>
-          <ul className={styles.list}>
+          <ul className={styles.shapes}>
             { listItems }
           </ul>
     </div>

@@ -2,8 +2,7 @@ import React from 'react'
 import { NextPage } from 'next'
 import Head from 'next/head'
 import styles from './index.module.scss'
-import ShapesBgWithCSS, { Colour } from '@/utils/ShapesBg/WithCSS/ShapesBg'
-import ShapesBgWithCanvas from '@/utils/ShapesBg/WithCanvas/ShapesBg'
+import ShapesBg, { Colour } from '@/utils/ShapesBg/WithCanvas/ShapesBg'
 
 const Home: NextPage = () => {
   return (
@@ -15,8 +14,8 @@ const Home: NextPage = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main>
-        <ShapesBgWithCSS colour={ new Colour(127, 0, 255, 0.75) } />
-        <ShapesBgWithCanvas colour={ new Colour(220, 20, 60, 0.75) } />
+        <ShapesBg colour={ new Colour(127, 0, 255, 0.85) }/>
+        <ShapesBg colour={ new Colour(220, 20, 60, 0.85) } />
         <div className={styles.context}>
           <h1>17β-Estradiol</h1>
         </div>
