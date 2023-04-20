@@ -1,3 +1,4 @@
+import styles from './ShapesBg.module.scss'
 import React, { useEffect, useRef } from 'react'
 import { MousePosition, useMousePositionRef, useWindowDimensions } from '@/utils/utils'
 
@@ -66,7 +67,7 @@ const ShapesBg = ({
             shapeSize,
             colour,
             currDelay,
-            dFactor * i,
+            Math.round(dFactor * i),
           )
         ),
         currDelay,
@@ -85,7 +86,11 @@ const ShapesBg = ({
     return () => cancelAnimationFrame(requestRef.current);
   }, []);
   
-  return <canvas ref={canvasRef}></canvas>;
+  return (
+    <div className={styles.area}>
+          <canvas className={styles.shapes} ref={canvasRef}></canvas>
+    </div>
+  );
 }
 export default ShapesBg;
 
@@ -101,7 +106,9 @@ const randomPop = <T,>(arr: T[]): T =>
   arr.splice(Math.floor(Math.random() * arr.length), 1)[0];
 
 class Particle {
+  private x: number = 0;
   private y: number = 0;
+  private xDisplacement: number = 0;
   private yDisplacement: number = 0;
 
   constructor(
@@ -111,37 +118,60 @@ class Particle {
     private readonly animDuration: number,
     private readonly size: number,
     private readonly colour: Colour,
-    private readonly currDelay: number,
-    private x: number,
-  ) {
-  }
+    private readonly delay: number,
+    private readonly initialX: number,
+  ) { }
 
   public update(mousePos: MousePosition, currTime: number) {
-    const dx = this.x - mousePos.x;
-    const dy = this.y - mousePos.y;
+    const canvasWidth = this.canvas.width;
+    const canvasHeight = this.canvas.height;
 
+    // Moves away from mouse if mouse too close
+    let dx = this.x - mousePos.x;
+    let dy = this.y - mousePos.y;
+    if (dx > canvasWidth / 2) {
+      dx = dx - canvasWidth;
+    } else if (dx < -canvasWidth / 2) {
+      dx = canvasWidth + dx;
+    }
+    if (dy > canvasHeight / 2) {
+      dy = dy - canvasHeight;
+    } else if (dy < -canvasHeight / 2) {
+      dy = canvasHeight + dy;
+    }
     if (Math.sqrt(dx*dx + dy*dy) < 100) {
-      this.x += dx / 15;
-      this.yDisplacement += dy / 15;
+      this.xDisplacement += Math.round(dx / 15);
+      this.yDisplacement += Math.round(dy / 15);
     }
     
-    const animationProgress = ((currTime - this.currDelay) / this.animDuration) % 1;
-    this.y = (this.canvas.height * animationProgress + this.yDisplacement) % this.canvas.height;
-    this.draw(this.y / this.canvas.height);
+    const animationProgress = ((currTime - this.delay) / this.animDuration) % 1;
+
+    // Adds displacements then maps to canvas
+    this.x = this.mapToInterval(this.initialX, this.xDisplacement, canvasWidth);
+    this.y = this.mapToInterval(canvasHeight * animationProgress, this.yDisplacement, canvasHeight);
+
+    this.draw(animationProgress);
   }
 
-  private draw(progress: number) {
+  private mapToInterval(pos: number, displacement: number, interval: number) {
+    // Displacement might be negative so we add an extra "interval"
+    return (pos + interval + displacement % interval) % interval;
+  }
+
+  private draw(rotationProgress: number) {
     this.ctx.beginPath();
+    const minimumAlpha = 0.15;
     this.ctx.fillStyle = new Colour(
         this.colour.r,
         this.colour.g,
         this.colour.b,
-        this.colour.a * (1 - this.y / this.canvas.height),
+        minimumAlpha + (this.colour.a - minimumAlpha) * (1 - this.y / this.canvas.height),
       ).toString();
       
-    this.rotate(progress * 720);
+    this.rotate(rotationProgress * 720);
 
-    switch (this.type % 3) {
+    // All figures are drawn with (x, y) as the center
+    switch (this.type % 3) { 
       case 0: // Triangle
         this.drawTriangle();
         break;
@@ -159,23 +189,24 @@ class Particle {
   }
 
   private rotate(angle: number) {
-    const cx = this.x + this.size / 2;
-    const cy = this.y + this.size / 2;
-    this.ctx.translate(cx, cy);
+    this.ctx.translate(this.x, this.y);
     this.ctx.rotate(angle * Math.PI / 180);
-    this.ctx.translate(-cx, -cy);
+    this.ctx.translate(-this.x, -this.y);
   }
 
   private drawTriangle() {
     const halfWidth = this.size / 1.5; // * 1 / Math.sqrt(Math.sqrt(3)); // Commented is for equilateral triangle to have same area as square but it visually looks better w/ 1.5
-    const baseY = this.y + Math.sqrt(3) * halfWidth;
-    this.ctx.moveTo(this.x, this.y);
+    const triangleHeight = Math.sqrt(3) * halfWidth;
+    const upmostY = this.y - triangleHeight / 1.5;
+    const baseY = upmostY + triangleHeight;
+    this.ctx.moveTo(this.x, upmostY);
     this.ctx.lineTo(this.x - halfWidth, baseY);
     this.ctx.lineTo(this.x + halfWidth, baseY);
   }
 
   private drawSquare() {
-    this.ctx.rect(this.x, this.y, this.size, this.size);
+    const halfSide = this.size / 2;
+    this.ctx.rect(this.x - halfSide, this.y - halfSide, this.size, this.size);
   }
 
   private drawCircle() {
